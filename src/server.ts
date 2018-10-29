@@ -5,11 +5,16 @@ import studiesRouter from './routes/studies';
 import * as packageJson from '../package.json';
 
 import * as express from 'express';
+import * as swagger from 'swagger-ui-express';
+const swaggerDoc = require('../swagger.json');
 
 const startTime = new Date();
 
-export default async ({ ego }) => {
+export default () => {
   const app = express();
+
+  //swagger
+  app.use('/docs', swagger.serve, swagger.setup(swaggerDoc));
 
   app.get('/status', (req, res) =>
     res.send({
