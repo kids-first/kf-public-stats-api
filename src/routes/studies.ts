@@ -5,10 +5,17 @@ import * as _ from 'lodash';
 const router = express.Router();
 
 class StudyData {
+  id: string;
   name: string;
   probands: number;
   familyMembers: number;
-  constructor(_name: string, _probands: number, _familyMembers: number) {
+  constructor(
+    _id: string,
+    _name: string,
+    _probands: number,
+    _familyMembers: number,
+  ) {
+    this.id = _id;
     this.name = _name;
     this.probands = _probands;
     this.familyMembers = _familyMembers;
@@ -55,6 +62,15 @@ const fetchStudyIds = async (project: string): Promise<string[]> => {
  * - probandFilter :
  *    Builds the SQON filter object, can build for proband (is_proband = true) or familyMember (is_proband = false)
  *
+ * - buildParticipantQuery :
+ *    Arranger query for participant data for all studies
+ *
+ * - buildParticipantVariables :
+ *    Arranger SQON variables for all studies
+ *
+ * - fetchParticipantData :
+ *    The actual query logic!
+ *    Prepare arranger inputs, call arranger queries, and return StudyData array
  *
  */
 const probandSqon = (studyId: string): string => `${studyId}Proband`;
@@ -62,6 +78,7 @@ const familySqon = (studyId: string): string => `${studyId}Family`;
 
 const probandLabel = (studyId: string): string => `${studyId}_proband`;
 const familyLabel = (studyId: string): string => `${studyId}_familyMembers`;
+const nameLabel = (studyId: string): string => `${studyId}_name`;
 
 const probandFilter = (studyId: string, probandValue: Boolean): any => ({
   op: 'and',
@@ -113,6 +130,9 @@ const buildParticipantQuery = (studyIds: string[]): string => {
           studyId,
         )}) {total}
         ${familyLabel(studyId)}: hits(filters: $${familySqon(studyId)}) {total}
+        ${nameLabel(studyId)}: aggregations(filters: $${familySqon(
+          studyId,
+        )}) {study__short_name{buckets{key}}}
         `,
     )
     .join('');
@@ -148,11 +168,18 @@ const fetchParticipantData = async (
     const familyMembers = parseInt(
       _.get(data, `participant.${familyLabel(studyId)}.total`, 0),
     );
-    return new StudyData(studyId, probands, familyMembers);
+    const name = _.get(
+      data,
+      `participant.${nameLabel(studyId)}.study__short_name.buckets[0].key`,
+      studyId,
+    );
+    return new StudyData(studyId, name, probands, familyMembers);
   });
 };
 
-/* ----- Routes ----- */
+/**
+ *  ----- Routes -----
+ * */
 
 router.get('/', async (req, res) => {
   const studyIds = await fetchStudyIds('october_10');
@@ -160,8 +187,8 @@ router.get('/', async (req, res) => {
 
   const output = {
     studies: studyData.map(study => {
-      const { name, probands, familyMembers } = study;
-      return { name, probands, familyMembers };
+      const { id, name, probands, familyMembers } = study;
+      return { id, name, probands, familyMembers };
     }),
   };
   res.send(output);
