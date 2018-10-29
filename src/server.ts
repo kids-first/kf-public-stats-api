@@ -1,8 +1,8 @@
 import 'babel-polyfill';
 
 import { egoApi, arrangerApi } from './config';
-import studiesRouter from './routes/studies';
 import * as packageJson from '../package.json';
+import router from './routes/router';
 
 import * as express from 'express';
 import * as swagger from 'swagger-ui-express';
@@ -25,7 +25,7 @@ export default () => {
     }),
   );
 
-  app.use('/studies', studiesRouter);
+  app.use('/', router);
 
   return app;
 };

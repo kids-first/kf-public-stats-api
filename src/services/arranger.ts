@@ -3,6 +3,8 @@ import ego from './ego';
 
 import axios from 'axios';
 
+const OTHER = '__missing__';
+
 const query = async (
   project: string,
   query: string,
@@ -20,4 +22,4 @@ const query = async (
     .catch(err => console.log(err));
 };
 
-export default { query };
+export default { query, OTHER };
