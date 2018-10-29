@@ -1,0 +1,93 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "KidsFirst Public Stats API",
+    "description": "Providing public access to select summary data from KidsFirst"
+  },
+  "schemes": ["https"],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Server status",
+        "description": "Simple *ping* service to check server uptime, version, and connection details",
+        "responses": {
+          "200": {
+            "description": "Server details",
+            "schema": {
+              "type": "object",
+              "required": ["version", "started", "ego", "arranger"],
+              "properties": {
+                "version": {
+                  "type": "string",
+                  "example": "0.1.0",
+                  "description": "API Version number (defined in package.json)"
+                },
+                "started": {
+                  "type": "string",
+                  "example": "2018-10-26T21:04:44.553Z",
+                  "description": "DateTime in ISO standard format for when the API came online"
+                },
+                "ego": {
+                  "type": "string",
+                  "example": "https://localhost:8081",
+                  "description": "Host for EGO server the API will connect with"
+                },
+                "arranger": {
+                  "type": "string",
+                  "example": "https://localhost:8082",
+                  "description": "Host for Arranger server the API will connect with"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/studies": {
+      "get": {
+        "summary": "Study and participant data (Proband | Family Members)",
+        "description": "Returns list of studies and the count of participants for each study, separated by proband and family member.",
+        "responses": {
+          "200": {
+            "description": "List of studies and their participant counts",
+            "schema": {
+              "type": "object",
+              "required": ["studies"],
+              "properties": {
+                "studies": {
+                  "type": "array",
+                  "items": {
+                    "required": ["id", "name", "proband", "familyMembers"],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "SD_ABCDEF12",
+                        "description": "Study ID"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Super Cancer Study",
+                        "description": "short_name of study, use as display name"
+                      },
+                      "proband": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

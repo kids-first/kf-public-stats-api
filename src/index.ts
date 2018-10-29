@@ -3,16 +3,7 @@ import logger from './logger';
 import server from './server';
 
 const start = async () => {
-  const app = await server({
-    ego: {
-      accessRules: [
-        {
-          type: 'allow',
-          route: ['/', '/(.*)'],
-        },
-      ],
-    },
-  });
+  const app = server();
 
   app.listen(env.expressPort, () => {
     logger.info(
