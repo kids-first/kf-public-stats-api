@@ -88,6 +88,41 @@
           }
         }
       }
+    },
+    "/diagnosis-categories": {
+      "get": {
+        "summary": "Diagnosis Categories and number of participants for each",
+        "description": "Returns list of diagnosis categories across all studies, and the number of participants belonging to each category.",
+        "responses": {
+          "200": {
+            "description": "List of diagnosis categories and their participant counts",
+            "schema": {
+              "type": "object",
+              "required": ["studies"],
+              "properties": {
+                "cagegories": {
+                  "type": "array",
+                  "items": {
+                    "required": ["name", "participants"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Structural Birth Defect",
+                        "description": "Name of Diagnosis Category"
+                      },
+                      "participants": {
+                        "type": "number",
+                        "example": "1234",
+                        "description": "Number of participants belonging to this category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
