@@ -5,7 +5,8 @@
     "title": "KidsFirst Public Stats API",
     "description": "Providing public access to select summary data from KidsFirst"
   },
-  "schemes": ["https"],
+  "basePath": "/v1",
+  "schemes": ["https", "http"],
   "paths": {
     "/status": {
       "get": {
@@ -58,7 +59,7 @@
                 "studies": {
                   "type": "array",
                   "items": {
-                    "required": ["id", "name", "proband", "familyMembers"],
+                    "required": ["id", "name", "probands", "familyMembers"],
                     "properties": {
                       "id": {
                         "type": "string",
@@ -70,7 +71,7 @@
                         "example": "Super Cancer Study",
                         "description": "short_name of study, use as display name"
                       },
-                      "proband": {
+                      "probands": {
                         "type": "number",
                         "example": "12",
                         "description": "Number of participants listed as proband"
@@ -89,7 +90,7 @@
         }
       }
     },
-    "/diagnosis-categories": {
+    "/diagnoses/categories": {
       "get": {
         "summary": "Diagnosis Categories and number of participants for each",
         "description": "Returns list of diagnosis categories across all studies, and the number of participants belonging to each category.",
@@ -98,9 +99,9 @@
             "description": "List of diagnosis categories and their participant counts",
             "schema": {
               "type": "object",
-              "required": ["studies"],
+              "required": ["categories"],
               "properties": {
-                "cagegories": {
+                "diagnoses": {
                   "type": "array",
                   "items": {
                     "required": ["name", "participants"],
@@ -114,6 +115,86 @@
                         "type": "number",
                         "example": "1234",
                         "description": "Number of participants belonging to this category"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/diagnoses/text": {
+      "get": {
+        "summary": "Participants with each MONDO Diagnosis, split between proband and family members",
+        "description": "Returns list of MONDO diagnosis text, and the number of participants relating to that diagnosis split between proband and family members.",
+        "responses": {
+          "200": {
+            "description": "List of diagnosis categories and their participant counts",
+            "schema": {
+              "type": "object",
+              "required": ["diagnoses"],
+              "properties": {
+                "diagnoses": {
+                  "type": "array",
+                  "items": {
+                    "required": ["name", "probands", "familyMembers"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Cleft Lip and Palate",
+                        "description": "MONDO Diagnosis Text"
+                      },
+                      "probands": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/phenotypes/observed": {
+      "get": {
+        "summary": "Phenotypes Observed, Categorized by HPO name, counting participants as proband or family member",
+        "description": "Returns list of phenotypes observed, and the number of participants split as proband and family member.",
+        "responses": {
+          "200": {
+            "description": "List of phenotypes and their participant counts",
+            "schema": {
+              "type": "object",
+              "required": ["phenotypes"],
+              "properties": {
+                "phenotypes": {
+                  "type": "array",
+                  "items": {
+                    "required": ["name", "probands", "familyMembers"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Cleft Lip",
+                        "description": "Phenotype Name from HPO"
+                      },
+                      "probands": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
                       }
                     }
                   }

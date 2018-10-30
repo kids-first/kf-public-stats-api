@@ -1,15 +1,18 @@
 import * as winston from 'winston';
 import * as env from './config';
 
-const { combine, timestamp, json, printf } = winston.format;
+const { colorize, combine, timestamp, json, printf } = winston.format;
+
+let count = 0;
 
 const consoleFormatter = printf(data => {
-  return `${data.timestamp} [${data.level}]  - ${data.message}`;
+  count += 1;
+  return `(${count}) ${data.timestamp} [${data.level}]  -\n ${data.message}`;
 });
 
 const consoleLogger = new winston.transports.Console({
   level: env.logLevel,
-  format: combine(timestamp(), consoleFormatter),
+  format: combine(colorize(), timestamp(), consoleFormatter),
 });
 
 const fileLogger = new winston.transports.File({
