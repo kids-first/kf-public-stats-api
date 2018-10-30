@@ -3,7 +3,8 @@ import ego from './ego';
 
 import axios from 'axios';
 
-const OTHER = '__missing__';
+const MISSING_VALUE = '__missing__';
+const MISSING_DISPLAY_TEXT = 'No Data';
 
 const query = async (
   project: string,
@@ -19,7 +20,9 @@ const query = async (
   return await axios
     .post(url, { query, variables }, config)
     .then(response => response.data)
-    .catch(err => console.log(err));
+    .catch(err => {
+      throw new Error(`Error querying arranger: ${err.message}`);
+    });
 };
 
-export default { query, OTHER };
+export default { query, MISSING_VALUE, MISSING_DISPLAY_TEXT };

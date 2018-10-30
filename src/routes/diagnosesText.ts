@@ -4,18 +4,12 @@ import * as _ from 'lodash';
 
 const router = express.Router();
 
-class StudyData {
+class PhenotypeData {
   id: string;
   name: string;
   probands: number;
   familyMembers: number;
-  constructor(
-    _id: string,
-    _name: string,
-    _probands: number,
-    _familyMembers: number,
-  ) {
-    this.id = _id;
+  constructor(_name: string, _probands: number, _familyMembers: number) {
     this.name = _name;
     this.probands = _probands;
     this.familyMembers = _familyMembers;
@@ -23,15 +17,15 @@ class StudyData {
 }
 
 /**
- * Fetch Study IDs
+ * Fetch Phenotypes
  * ---------------
- *    Call Arranger to get all the currently available study IDs
+ *    Call Arranger to get all the currently available Phenotype Observed HPO Text values
  */
-const fetchStudyIds = async (project: string): Promise<string[]> => {
+const fetchPhenotypes = async (project: string): Promise<string[]> => {
   const query = `{
     participant {
       aggregations {
-        study__kf_id {
+        phenotype__hpo_phenotype_observed_text {
           buckets
           {
             key
@@ -45,7 +39,10 @@ const fetchStudyIds = async (project: string): Promise<string[]> => {
     .query(project, query)
     .then(response => response.data);
 
-  const buckets = _.get(data, 'participant.aggregations.study__kf_id.buckets');
+  const buckets = _.get(
+    data,
+    'participant.aggregations.diagnoses__diagnosis.buckets',
+  );
   return _.isArray(buckets) ? buckets.map(bucket => bucket.key) : [];
 };
 
@@ -72,19 +69,22 @@ const fetchStudyIds = async (project: string): Promise<string[]> => {
  *    Prepare arranger inputs, call arranger queries, and return StudyData array
  *
  */
+const removeNonAlpha = (text: string): string =>
+  text.replace(/[^a-zA-Z0-9]/g, '_');
 
-const probandLabel = (studyId: string): string => `X${studyId}_proband`;
-const familyLabel = (studyId: string): string => `X${studyId}_familyMembers`;
-const nameLabel = (studyId: string): string => `X${studyId}_name`;
+const probandLabel = (phenotype: string): string =>
+  `X${removeNonAlpha(phenotype)}_proband`;
+const familyLabel = (phenotype: string): string =>
+  `X${removeNonAlpha(phenotype)}_familyMembers`;
 
-const probandFilter = (studyId: string, probandValue: Boolean): any => ({
+const probandFilter = (phenotype: string, probandValue: Boolean): any => ({
   op: 'and',
   content: [
     {
       op: 'in',
       content: {
-        field: 'study.kf_id',
-        value: [studyId],
+        field: 'diagnoses.diagnosis',
+        value: [phenotype],
       },
     },
     {
@@ -97,69 +97,64 @@ const probandFilter = (studyId: string, probandValue: Boolean): any => ({
   ],
 });
 
-const buildParticipantQuery = (studyIds: string[]): string => {
-  const queryParams = studyIds
+const buildParticipantQuery = (phenotypes: string[]): string => {
+  const queryParams = phenotypes
     .map(
-      studyId =>
-        `$${probandLabel(studyId)}: JSON, $${familyLabel(studyId)}: JSON`,
+      phenotype =>
+        `$${probandLabel(phenotype)}: JSON, $${familyLabel(phenotype)}: JSON`,
     )
     .join(', ');
 
-  const queries = studyIds
+  const queries = phenotypes
     .map(
-      studyId =>
+      phenotype =>
         `
-        ${probandLabel(studyId)}: aggregations(filters: $${probandLabel(
-          studyId,
+        ${probandLabel(phenotype)}: aggregations(filters: $${probandLabel(
+          phenotype,
         )}) {kf_id {buckets{key}}}
-        ${familyLabel(studyId)}: aggregations(filters: $${familyLabel(
-          studyId,
-        )}) {kf_id {buckets{key}}}
-        ${nameLabel(studyId)}: aggregations(filters: $${familyLabel(
-          studyId,
-        )}) {study__short_name{buckets{key}}}
-        `,
+        ${familyLabel(phenotype)}: aggregations(filters: $${familyLabel(
+          phenotype,
+        )}) {kf_id {buckets{key}}}`,
     )
     .join('');
 
   return `query(${queryParams}) {participant{${queries}}}`;
 };
 
-const buildParticipantVariables = (studyIds: string[]): any => {
+const buildParticipantVariables = (phenotypes: string[]): any => {
   const output = {};
-  studyIds.forEach(studyId => {
-    output[probandLabel(studyId)] = probandFilter(studyId, true);
-    output[familyLabel(studyId)] = probandFilter(studyId, false);
+  phenotypes.forEach(phenotype => {
+    output[probandLabel(phenotype)] = probandFilter(phenotype, true);
+    output[familyLabel(phenotype)] = probandFilter(phenotype, false);
   });
   return output;
 };
 
 const fetchParticipantData = async (
   project: string,
-  studyIds: string[],
-): Promise<StudyData[]> => {
-  const query = buildParticipantQuery(studyIds);
+  phenotypes: string[],
+): Promise<PhenotypeData[]> => {
+  const query = buildParticipantQuery(phenotypes);
 
-  const variables = buildParticipantVariables(studyIds);
+  const variables = buildParticipantVariables(phenotypes);
 
   const response = await arranger.query(project, query, variables);
   const data = response.data;
 
-  return studyIds.map(studyId => {
+  return phenotypes.map(phenotype => {
     const probands = parseInt(
-      _.get(data, `participant.${probandLabel(studyId)}.kf_id.buckets`, [])
+      _.get(data, `participant.${probandLabel(phenotype)}.kf_id.buckets`, [])
         .length,
     );
     const familyMembers = parseInt(
-      _.get(data, `participant.${familyLabel(studyId)}.kf_id.buckets`, [])
+      _.get(data, `participant.${familyLabel(phenotype)}.kf_id.buckets`, [])
         .length,
     );
-    const name = _.get(
-      data,
-      `participant.${nameLabel(studyId)}.study__short_name.buckets[0].key`,
-      studyId,
-    );
-    return new StudyData(studyId, name, probands, familyMembers);
+    const name =
+      phenotype === arranger.MISSING_VALUE
+        ? arranger.MISSING_DISPLAY_TEXT
+        : phenotype;
+    return new PhenotypeData(name, probands, familyMembers);
   });
 };
 
@@ -169,16 +164,15 @@ const fetchParticipantData = async (
 
 router.get('/', async (req, res, next) => {
   try {
-    const studyIds = await fetchStudyIds('october_10');
-    const studyData = await fetchParticipantData('october_10', studyIds);
+    const diagnoses = await fetchPhenotypes('october_10');
+    const diagnosesData = await fetchParticipantData('october_10', diagnoses);
 
     const output = {
-      studies: studyData.map(study => {
-        const { id, name, probands, familyMembers } = study;
-        return { id, name, probands, familyMembers };
+      diagnoses: diagnosesData.map(study => {
+        const { name, probands, familyMembers } = study;
+        return { name, probands, familyMembers };
       }),
     };
-
     res.send(output);
   } catch (e) {
     next(e);

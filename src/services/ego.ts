@@ -23,7 +23,10 @@ const fetchToken = async (): Promise<string> => {
   return await axios
     .create({ headers: data.getHeaders() })
     .post(tokenUrl, data)
-    .then(response => response.data.access_token);
+    .then(response => response.data.access_token)
+    .catch(err => {
+      throw new Error(`Error authenticating with EGO: ${err.message}`);
+    });
 };
 
 const isTokenExpired = (): boolean => {

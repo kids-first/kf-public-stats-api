@@ -31,16 +31,14 @@ const fetchCategoryNames = async (project: string): Promise<string[]> => {
     }
   }`;
 
-  const data = await arranger
-    .query(project, query)
-    .then(response => response.data);
+  const response = await arranger.query(project, query);
+  const data = response.data;
 
   const buckets = _.get(
     data,
     'participant.aggregations.diagnoses__diagnosis_category.buckets',
   );
-  //TODO: check buckets is an array
-  return buckets.map(bucket => bucket.key);
+  return _.isArray(buckets) ? buckets.map(bucket => bucket.key) : [];
 };
 
 /**
@@ -84,20 +82,6 @@ const categoryFilter = (category: string): any => ({
 });
 
 const buildParticipantQuery = (categories: string[]): string => {
-  //Desired output:
-  /*
-  query($studyIdProband: JSON, $studyIdFamily: JSON){
-    participant {
-      studyId_probands: hits(filters: $studyIdProband) {
-        total
-      }
-      studyId_familyMembers: hits(filters: $studyIdFamily) {
-        total 
-      }
-    }
-  }
-*/
-
   const queryParams = categories
     .map(category => `$${categoryLabel(category)}: JSON`)
     .join(', ');
@@ -132,15 +116,17 @@ const fetchCategoryParticipantData = async (
 
   const variables = buildParticipantVariables(categories);
 
-  const data = await arranger
-    .query(project, query, variables)
-    .then(response => response.data);
+  const response = await arranger.query(project, query, variables);
+  const data = response.data;
 
   return categories.map(category => {
     const participants = parseInt(
       _.get(data, `participant.${categoryLabel(category)}.total`, 0),
     );
-    const name = category === arranger.OTHER ? 'Other' : category;
+    const name =
+      category === arranger.MISSING_VALUE
+        ? arranger.MISSING_DISPLAY_TEXT
+        : category;
     return new CategoryData(name, participants);
   });
 };
@@ -149,20 +135,24 @@ const fetchCategoryParticipantData = async (
  *  ----- Routes -----
  * */
 
-router.get('/', async (req, res) => {
-  const categoryIds = await fetchCategoryNames('october_10');
-  const categoryData = await fetchCategoryParticipantData(
-    'october_10',
-    categoryIds,
-  );
+router.get('/', async (req, res, next) => {
+  try {
+    const categoryIds = await fetchCategoryNames('october_10');
+    const categoryData = await fetchCategoryParticipantData(
+      'october_10',
+      categoryIds,
+    );
 
-  const output = {
-    categories: categoryData.map(category => {
-      const { name, participants } = category;
-      return { name, participants };
-    }),
-  };
-  res.send(output);
+    const output = {
+      diagnoses: categoryData.map(category => {
+        const { name, participants } = category;
+        return { name, participants };
+      }),
+    };
+    res.send(output);
+  } catch (e) {
+    next(e);
+  }
 });
 
 export default router;
