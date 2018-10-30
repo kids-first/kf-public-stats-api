@@ -45,10 +45,21 @@
         }
       }
     },
-    "/studies": {
+    "/{project}/studies": {
       "get": {
         "summary": "Study and participant data (Proband | Family Members)",
         "description": "Returns list of studies and the count of participants for each study, separated by proband and family member.",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "description": "Arranger project ID",
+            "required": "true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of studies and their participant counts",
@@ -90,10 +101,21 @@
         }
       }
     },
-    "/diagnoses/categories": {
+    "/{project}/diagnoses/categories": {
       "get": {
         "summary": "Diagnosis Categories and number of participants for each",
         "description": "Returns list of diagnosis categories across all studies, and the number of participants belonging to each category.",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "description": "Arranger project ID",
+            "required": "true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of diagnosis categories and their participant counts",
@@ -125,10 +147,21 @@
         }
       }
     },
-    "/diagnoses/text": {
+    "/{project}/diagnoses/text": {
       "get": {
         "summary": "Participants with each MONDO Diagnosis, split between proband and family members",
         "description": "Returns list of MONDO diagnosis text, and the number of participants relating to that diagnosis split between proband and family members.",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "description": "Arranger project ID",
+            "required": "true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of diagnosis categories and their participant counts",
@@ -165,10 +198,21 @@
         }
       }
     },
-    "/phenotypes/observed": {
+    "/{project}/phenotypes/observed": {
       "get": {
         "summary": "Phenotypes Observed, Categorized by HPO name, counting participants as proband or family member",
         "description": "Returns list of phenotypes observed, and the number of participants split as proband and family member.",
+        "parameters": [
+          {
+            "name": "project",
+            "in": "path",
+            "description": "Arranger project ID",
+            "required": "true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "List of phenotypes and their participant counts",

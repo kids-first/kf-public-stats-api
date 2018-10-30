@@ -2,7 +2,7 @@ import * as express from 'express';
 import arranger from '../services/arranger';
 import * as _ from 'lodash';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 class PhenotypeData {
   id: string;
@@ -164,8 +164,9 @@ const fetchParticipantData = async (
 
 router.get('/', async (req, res, next) => {
   try {
-    const diagnoses = await fetchPhenotypes('october_10');
-    const diagnosesData = await fetchParticipantData('october_10', diagnoses);
+    const { project } = req.params;
+    const diagnoses = await fetchPhenotypes(project);
+    const diagnosesData = await fetchParticipantData(project, diagnoses);
 
     const output = {
       diagnoses: diagnosesData.map(study => {

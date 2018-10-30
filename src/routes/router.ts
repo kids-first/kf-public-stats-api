@@ -6,9 +6,9 @@ import phenotypesHPO from './phenotypesHPO';
 
 const router = express.Router();
 
-router.use('/studies', studies);
-router.use('/diagnoses/categories', diagnosisCategories);
-router.use('/diagnoses/text', diagnosisText);
-router.use('/phenotypes/hpo', phenotypesHPO);
+router.use('/:project/studies', studies);
+router.use('/:project/diagnoses/categories', diagnosisCategories);
+router.use('/:project/diagnoses/text', diagnosisText);
+router.use('/:project/phenotypes/hpo', phenotypesHPO);
 
 export default router;

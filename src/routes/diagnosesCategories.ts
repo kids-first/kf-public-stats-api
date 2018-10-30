@@ -2,7 +2,7 @@ import * as express from 'express';
 import arranger from '../services/arranger';
 import * as _ from 'lodash';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 class CategoryData {
   name: string;
@@ -137,9 +137,10 @@ const fetchCategoryParticipantData = async (
 
 router.get('/', async (req, res, next) => {
   try {
-    const categoryIds = await fetchCategoryNames('october_10');
+    const { project } = req.params;
+    const categoryIds = await fetchCategoryNames(project);
     const categoryData = await fetchCategoryParticipantData(
-      'october_10',
+      project,
       categoryIds,
     );
 

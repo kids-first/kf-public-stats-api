@@ -1,8 +1,10 @@
+import logger from '../logger';
+
 import * as express from 'express';
 import arranger from '../services/arranger';
 import * as _ from 'lodash';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 class StudyData {
   id: string;
@@ -169,8 +171,10 @@ const fetchParticipantData = async (
 
 router.get('/', async (req, res, next) => {
   try {
-    const studyIds = await fetchStudyIds('october_10');
-    const studyData = await fetchParticipantData('october_10', studyIds);
+    const { project } = req.params;
+    logger.debug(`studies called with project: ${project}`);
+    const studyIds = await fetchStudyIds(project);
+    const studyData = await fetchParticipantData(project, studyIds);
 
     const output = {
       studies: studyData.map(study => {
