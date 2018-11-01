@@ -15,7 +15,7 @@ export const logPath = process.env.LOG_PATH || 'logs';
 export const logFileSize = parseInt(process.env.LOG_FILE_SIZE || '5242880'); //5Mb Default
 export const logMaxFiles = parseInt(process.env.LOG_MAX_FILES || '10');
 
-export const useVault = process.env.USE_VAULT === 'false';
+export const useVault = process.env.USE_VAULT === 'true';
 
 export const vaultAuthentication =
   process.env.VAULT_AUTHENTICATION || 'AWS_IAM';
