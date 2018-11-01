@@ -27,6 +27,7 @@ export const vaultApiVersion = process.env.VAULT_API_VERSION || 'v1';
 export const vaultToken = process.env.VAULT_TOKEN;
 export const vaultAwsIamRole = process.env.AWS_IAM_ROLE;
 
+export const vaultPath = process.env.VAULT_PATH;
 export const vaultEgoClientIdKey =
   process.env.EGO_CLIENT_ID_KEY || 'ego-client-id';
 export const vaultEgoClientSecretKey =
