@@ -198,7 +198,7 @@
         }
       }
     },
-    "/{project}/phenotypes/observed": {
+    "/{project}/phenotypes/hpo": {
       "get": {
         "summary": "Phenotypes Observed, Categorized by HPO name, counting participants as proband or family member",
         "description": "Returns list of phenotypes observed, and the number of participants split as proband and family member.",
