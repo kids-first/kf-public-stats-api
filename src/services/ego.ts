@@ -35,7 +35,7 @@ const getApplicationCredentials = async (): Promise<Credentials> => {
     return new Credentials(egoClientId, egoClientSecret);
   } else {
     const client = await vaultClient();
-    const { data } = await client.read();
+    const { data } = await client.read(vaultPath);
     return new Credentials(
       data[vaultEgoClientIdKey],
       data[vaultEgoClientSecretKey],
