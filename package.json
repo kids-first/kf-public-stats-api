@@ -6,6 +6,7 @@
   "author": "Jon Eubank <joneubank@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "postinstall": "rm -rf dist && mkdir dist && NODE_PATH=./ tsc",
     "start": "NODE_PATH=./ node dist/index.js",
     "demon": "NODE_PATH=./ nodemon dist/index.js",
     "build": "rm -rf dist && mkdir dist && NODE_PATH=./ tsc",
