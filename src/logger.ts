@@ -17,7 +17,7 @@ const consoleLogger = new winston.transports.Console({
 
 const fileLogger = new winston.transports.File({
   level: env.logLevel,
-  filename: `${env.logPath}/${env.nodeEnv}/server.log`,
+  filename: `${env.logPath}/server.log`,
   maxsize: env.logFileSize,
   maxFiles: env.logMaxFiles,
   format: combine(timestamp(), json()),
