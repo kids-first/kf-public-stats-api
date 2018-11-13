@@ -1,6 +1,6 @@
 import * as express from 'express';
 import arranger from '../services/arranger';
-import * as _ from 'lodash';
+const _ = require('lodash');
 
 const router = express.Router({ mergeParams: true });
 
@@ -25,7 +25,7 @@ const fetchPhenotypes = async (project: string): Promise<string[]> => {
   const query = `{
     participant {
       aggregations {
-        phenotype__hpo_phenotype_observed_text {
+        diagnoses__diagnosis {
           buckets
           {
             key

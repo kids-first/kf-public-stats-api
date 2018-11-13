@@ -17,16 +17,21 @@ const vaultClient = async () => {
   if (!useVault) return false;
   if (state.client) return state.client;
 
+  const authOptions = {
+    host: vaultHost,
+    vaultAppName: vaultAwsIamRole,
+    port: vaultPort,
+    ssl: vaultEndpointProtocol === 'https',
+  };
+
   const token =
     vaultAuthentication === 'AWS_IAM'
-      ? await new vaultAuthAws({
-          host: vaultHost,
-          vaultAppName: vaultAwsIamRole,
-          port: vaultPort,
-          ssl: vaultEndpointProtocol === 'https',
-        })
+      ? await new vaultAuthAws(authOptions)
           .authenticate()
           .then(r => r.auth.client_token)
+          .catch(err => {
+            throw Error(`Vault unable to authenticate: ${authOptions}`);
+          })
       : vaultToken;
 
   state.client = vault({
