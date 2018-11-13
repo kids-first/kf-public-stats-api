@@ -24,7 +24,7 @@ export const query = async (
     });
 };
 
-const PER_PAGE_LIMIT = 5;
+const PER_PAGE_LIMIT = 1000;
 const INTERESTS_QUERY = `query($page: Int) {
   users (perPage:${PER_PAGE_LIMIT} page:$page) {
     pageInfo {
