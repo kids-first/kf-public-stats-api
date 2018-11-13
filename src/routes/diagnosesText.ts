@@ -25,7 +25,7 @@ const fetchPhenotypes = async (project: string): Promise<string[]> => {
   const query = `{
     participant {
       aggregations {
-        phenotype__hpo_phenotype_observed_text {
+        diagnoses__diagnosis {
           buckets
           {
             key
