@@ -2,7 +2,7 @@ import logger from '../logger';
 
 import * as express from 'express';
 import arranger from '../services/arranger';
-import * as _ from 'lodash';
+const _ = require('lodash');
 
 const router = express.Router({ mergeParams: true });
 

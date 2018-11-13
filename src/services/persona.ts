@@ -2,7 +2,7 @@ import { personaApi } from '../config';
 import ego from './ego';
 
 import axios from 'axios';
-import * as _ from 'lodash';
+const _ = require('lodash');
 
 export const query = async (
   query: string,
