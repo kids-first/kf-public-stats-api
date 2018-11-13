@@ -6,3 +6,7 @@ declare module '*.json' {
 interface Error {
   status?: number;
 }
+
+interface PropertyCounts {
+  [key: string]: number;
+}

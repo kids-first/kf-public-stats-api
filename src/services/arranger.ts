@@ -9,7 +9,7 @@ const MISSING_DISPLAY_TEXT = 'No Data';
 const query = async (
   project: string,
   query: string,
-  variables: any = {},
+  variables: Object = {},
 ): Promise<any> => {
   const url = `${arrangerApi}/${project}/graphql`;
 

@@ -248,6 +248,42 @@
           }
         }
       }
+    },
+    "/users/interests": {
+      "get": {
+        "summary": "Site Users interests, aggregated into counts of each interest",
+        "description": "Returns list of all interests defined by users and the number of occurences of each interest",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of interests and their counts",
+            "schema": {
+              "type": "object",
+              "required": ["interests"],
+              "properties": {
+                "interests": {
+                  "type": "array",
+                  "items": {
+                    "required": ["name", "count"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "childhood cancer",
+                        "description": "Text for interest as saved in persona (all lowercase)"
+                      },
+                      "count": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants that included this interest"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

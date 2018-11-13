@@ -4,6 +4,7 @@ dotenv.config();
 
 export const egoApi = process.env.EGO_API;
 export const arrangerApi = process.env.ARRANGER_API;
+export const personaApi = process.env.PERSONA_API;
 
 export const egoClientId = process.env.EGO_CLIENT_ID;
 export const egoClientSecret = process.env.EGO_CLIENT_SECRET;
