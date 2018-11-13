@@ -6,6 +6,8 @@ import logger from './logger';
 import router from './routes/router';
 
 import * as express from 'express';
+import * as cors from 'cors';
+
 import * as swagger from 'swagger-ui-express';
 const swaggerDoc = require('../swagger.json');
 
@@ -13,6 +15,8 @@ const startTime = new Date();
 
 export default () => {
   const app = express();
+
+  app.use(cors());
 
   //swagger
   app.use('/docs', swagger.serve, swagger.setup(swaggerDoc));
