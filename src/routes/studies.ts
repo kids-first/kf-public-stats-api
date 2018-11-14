@@ -99,11 +99,26 @@ const probandFilter = (studyId: string, probandValue: Boolean): any => ({
   ],
 });
 
+const nameFilter = (studyId: string): any => ({
+  op: 'and',
+  content: [
+    {
+      op: 'in',
+      content: {
+        field: 'study.kf_id',
+        value: [studyId],
+      },
+    },
+  ],
+});
+
 const buildParticipantQuery = (studyIds: string[]): string => {
   const queryParams = studyIds
     .map(
       studyId =>
-        `$${probandLabel(studyId)}: JSON, $${familyLabel(studyId)}: JSON`,
+        `$${probandLabel(studyId)}: JSON, $${familyLabel(
+          studyId,
+        )}: JSON, $${nameLabel(studyId)}: JSON`,
     )
     .join(', ');
 
@@ -117,7 +132,7 @@ const buildParticipantQuery = (studyIds: string[]): string => {
         ${familyLabel(studyId)}: aggregations(filters: $${familyLabel(
           studyId,
         )}) {kf_id {buckets{key}}}
-        ${nameLabel(studyId)}: aggregations(filters: $${familyLabel(
+        ${nameLabel(studyId)}: aggregations(filters: $${nameLabel(
           studyId,
         )}) {study__short_name{buckets{key}}}
         `,
@@ -132,6 +147,7 @@ const buildParticipantVariables = (studyIds: string[]): any => {
   studyIds.forEach(studyId => {
     output[probandLabel(studyId)] = probandFilter(studyId, true);
     output[familyLabel(studyId)] = probandFilter(studyId, false);
+    output[nameLabel(studyId)] = nameFilter(studyId);
   });
   return output;
 };
