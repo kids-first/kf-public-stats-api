@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.0.0",
+    "version": "1.0.3",
     "title": "KidsFirst Public Stats API",
     "description": "Providing public access to select summary data from KidsFirst"
   },
@@ -47,7 +47,7 @@
     },
     "/{project}/studies": {
       "get": {
-        "summary": "Study and participant data (Proband | Family Members)",
+        "summary": "Studies Participant Data",
         "description": "Returns list of studies and the count of participants for each study, separated by proband and family member.",
         "parameters": [
           {
@@ -55,9 +55,7 @@
             "in": "path",
             "description": "Arranger project ID",
             "required": "true",
-            "schema": {
-              "type": "string"
-            }
+            "type": "string"
           }
         ],
         "responses": {
@@ -70,27 +68,30 @@
                 "studies": {
                   "type": "array",
                   "items": {
-                    "required": ["id", "name", "probands", "familyMembers"],
-                    "properties": {
-                      "id": {
-                        "type": "string",
-                        "example": "SD_ABCDEF12",
-                        "description": "Study ID"
-                      },
-                      "name": {
-                        "type": "string",
-                        "example": "Super Cancer Study",
-                        "description": "short_name of study, use as display name"
-                      },
-                      "probands": {
-                        "type": "number",
-                        "example": "12",
-                        "description": "Number of participants listed as proband"
-                      },
-                      "familyMembers": {
-                        "type": "number",
-                        "example": "34",
-                        "description": "Number of participants that are not proband"
+                    "schema": {
+                      "type": "object",
+                      "required": ["id", "name", "probands", "familyMembers"],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "SD_ABCDEF12",
+                          "description": "Study ID"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "Super Cancer Study",
+                          "description": "short_name of study, use as display name"
+                        },
+                        "probands": {
+                          "type": "number",
+                          "example": "12",
+                          "description": "Number of participants listed as proband"
+                        },
+                        "familyMembers": {
+                          "type": "number",
+                          "example": "34",
+                          "description": "Number of participants that are not proband"
+                        }
                       }
                     }
                   }
@@ -103,7 +104,7 @@
     },
     "/{project}/diagnoses/categories": {
       "get": {
-        "summary": "Diagnosis Categories and number of participants for each",
+        "summary": "Diagnoses Categories",
         "description": "Returns list of diagnosis categories across all studies, and the number of participants belonging to each category.",
         "parameters": [
           {
@@ -111,9 +112,7 @@
             "in": "path",
             "description": "Arranger project ID",
             "required": "true",
-            "schema": {
-              "type": "string"
-            }
+            "type": "string"
           }
         ],
         "responses": {
@@ -126,17 +125,20 @@
                 "diagnoses": {
                   "type": "array",
                   "items": {
-                    "required": ["name", "participants"],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "example": "Structural Birth Defect",
-                        "description": "Name of Diagnosis Category"
-                      },
-                      "participants": {
-                        "type": "number",
-                        "example": "1234",
-                        "description": "Number of participants belonging to this category"
+                    "schema": {
+                      "type": "object",
+                      "required": ["name", "participants"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Structural Birth Defect",
+                          "description": "Name of Diagnosis Category"
+                        },
+                        "participants": {
+                          "type": "number",
+                          "example": "1234",
+                          "description": "Number of participants belonging to this category"
+                        }
                       }
                     }
                   }
@@ -149,7 +151,7 @@
     },
     "/{project}/diagnoses/text": {
       "get": {
-        "summary": "Participants with each MONDO Diagnosis, split between proband and family members",
+        "summary": "Diagnoses Text",
         "description": "Returns list of MONDO diagnosis text, and the number of participants relating to that diagnosis split between proband and family members.",
         "parameters": [
           {
@@ -157,9 +159,7 @@
             "in": "path",
             "description": "Arranger project ID",
             "required": "true",
-            "schema": {
-              "type": "string"
-            }
+            "type": "string"
           }
         ],
         "responses": {
@@ -172,22 +172,25 @@
                 "diagnoses": {
                   "type": "array",
                   "items": {
-                    "required": ["name", "probands", "familyMembers"],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "example": "Cleft Lip and Palate",
-                        "description": "MONDO Diagnosis Text"
-                      },
-                      "probands": {
-                        "type": "number",
-                        "example": "12",
-                        "description": "Number of participants listed as proband"
-                      },
-                      "familyMembers": {
-                        "type": "number",
-                        "example": "34",
-                        "description": "Number of participants that are not proband"
+                    "schema": {
+                      "type": "object",
+                      "required": ["name", "probands", "familyMembers"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Cleft Lip and Palate",
+                          "description": "MONDO Diagnosis Text"
+                        },
+                        "probands": {
+                          "type": "number",
+                          "example": "12",
+                          "description": "Number of participants listed as proband"
+                        },
+                        "familyMembers": {
+                          "type": "number",
+                          "example": "34",
+                          "description": "Number of participants that are not proband"
+                        }
                       }
                     }
                   }
@@ -200,7 +203,7 @@
     },
     "/{project}/phenotypes/hpo": {
       "get": {
-        "summary": "Phenotypes Observed, Categorized by HPO name, counting participants as proband or family member",
+        "summary": "HPO Phenotypes Observed",
         "description": "Returns list of phenotypes observed, and the number of participants split as proband and family member.",
         "parameters": [
           {
@@ -208,9 +211,7 @@
             "in": "path",
             "description": "Arranger project ID",
             "required": "true",
-            "schema": {
-              "type": "string"
-            }
+            "type": "string"
           }
         ],
         "responses": {
@@ -223,22 +224,25 @@
                 "phenotypes": {
                   "type": "array",
                   "items": {
-                    "required": ["name", "probands", "familyMembers"],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "example": "Cleft Lip",
-                        "description": "Phenotype Name from HPO"
-                      },
-                      "probands": {
-                        "type": "number",
-                        "example": "12",
-                        "description": "Number of participants listed as proband"
-                      },
-                      "familyMembers": {
-                        "type": "number",
-                        "example": "34",
-                        "description": "Number of participants that are not proband"
+                    "schema": {
+                      "type": "object",
+                      "required": ["name", "probands", "familyMembers"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "Cleft Lip",
+                          "description": "Phenotype Name from HPO"
+                        },
+                        "probands": {
+                          "type": "number",
+                          "example": "12",
+                          "description": "Number of participants listed as proband"
+                        },
+                        "familyMembers": {
+                          "type": "number",
+                          "example": "34",
+                          "description": "Number of participants that are not proband"
+                        }
                       }
                     }
                   }
@@ -251,7 +255,7 @@
     },
     "/users/interests": {
       "get": {
-        "summary": "Site Users interests, aggregated into counts of each interest",
+        "summary": "User Interests",
         "description": "Returns list of all interests defined by users and the number of occurences of each interest",
         "parameters": [],
         "responses": {
@@ -264,17 +268,20 @@
                 "interests": {
                   "type": "array",
                   "items": {
-                    "required": ["name", "count"],
-                    "properties": {
-                      "name": {
-                        "type": "string",
-                        "example": "childhood cancer",
-                        "description": "Text for interest as saved in persona (all lowercase)"
-                      },
-                      "count": {
-                        "type": "number",
-                        "example": "12",
-                        "description": "Number of participants that included this interest"
+                    "schema": {
+                      "type": "object",
+                      "required": ["name", "count"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "childhood cancer",
+                          "description": "Text for interest as saved in persona (all lowercase)"
+                        },
+                        "count": {
+                          "type": "number",
+                          "example": "12",
+                          "description": "Number of participants that included this interest"
+                        }
                       }
                     }
                   }
