@@ -8,9 +8,7 @@ import cache from './middleware/cache';
 
 import * as express from 'express';
 import * as cors from 'cors';
-
-import * as swagger from 'swagger-ui-express';
-const swaggerDoc = require('../swagger.json');
+import * as path from 'path';
 
 const startTime = new Date();
 
@@ -20,7 +18,12 @@ export default () => {
   app.use(cors());
 
   //swagger
-  app.use('/docs', swagger.serve, swagger.setup(swaggerDoc));
+  app.use('/docs', (req, res) => {
+    res.sendFile(path.join(__dirname, '../redoc.html'));
+  });
+  app.use('/swagger', (req, res) => {
+    res.sendFile(path.join(__dirname, '../swagger.json'));
+  });
 
   app.use('/v1', cache(), router);
 
