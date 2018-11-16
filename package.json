@@ -1,6 +1,6 @@
 {
   "name": "kf-public-stats-api",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "repository": "git@github.com:kids-first/kf-public-stats-api.git",
   "author": "Jon Eubank <joneubank@gmail.com>",
