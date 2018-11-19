@@ -20,4 +20,7 @@ declare namespace Express {
       cb?: Function,
     ): void;
   }
+  export interface Request {
+    jwt?: any;
+  }
 }

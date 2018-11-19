@@ -20,6 +20,7 @@
     "copyfiles": "^2.1.0",
     "cors": "^2.8.5",
     "dotenv": "^4.0.0",
+    "ego-token-middleware": "^1.0.1",
     "express": "^4.16.2",
     "form-data": "^2.3.3",
     "jsonwebtoken": "^8.3.0",
