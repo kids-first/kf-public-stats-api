@@ -5,6 +5,7 @@ import * as packageJson from '../package.json';
 import logger from './logger';
 import router from './routes/router';
 import cache from './middleware/cache';
+import { clear } from './middleware/cache';
 
 import * as express from 'express';
 import * as cors from 'cors';
@@ -26,6 +27,7 @@ export default () => {
   });
 
   app.use('/v1', cache(), router);
+  app.use('/cache/bust', clear);
 
   router.get('/status', (req, res) =>
     res.send({
