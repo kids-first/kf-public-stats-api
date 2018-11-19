@@ -8,8 +8,11 @@ export default (
   return (req, res, next) => {
     const key = `__express__${req.originalUrl || req.url}`;
 
+    const cacheHeader = req.get('Cache-Control');
+    const noCache = cacheHeader === 'no-cache';
+
     const cachedResponse = mcache.get(key);
-    if (cachedResponse) {
+    if (!noCache && cachedResponse) {
       res.send(cachedResponse);
       return; //ensure no next()
     } else {
@@ -21,7 +24,7 @@ export default (
         }
 
         res.end = function(chunk, encoding) {
-          if (res.statusCode !== 200) {
+          if (res.statusCode !== 200 || body.error) {
             // can't cache at this point because everything is stringified by now,
             //  but we also don't know the statusCode until this point. So we cache always
             //  during 'send', but remove during 'end' if we have an error
