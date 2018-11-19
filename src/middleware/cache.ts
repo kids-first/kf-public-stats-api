@@ -1,34 +1,43 @@
 import * as mcache from 'memory-cache';
 import { RequestHandlerParams } from 'express-serve-static-core';
+import { RequestHandler, Request, Response, NextFunction, Send } from 'express';
 
 export default (
   duration: number = 3600000,
   autoRefresh: boolean = false,
-): RequestHandlerParams => {
-  return (req, res, next) => {
+): RequestHandler => {
+  return (req: Request, res: Response, next: NextFunction): any => {
     const key = `__express__${req.originalUrl || req.url}`;
 
+    const cacheHeader = req.get('Cache-Control');
+    const noCache = cacheHeader === 'no-cache';
+
     const cachedResponse = mcache.get(key);
-    if (cachedResponse) {
+    if (!noCache && cachedResponse) {
       res.send(cachedResponse);
       return; //ensure no next()
     } else {
       res.__send = res.send;
 
-      res.send = body => {
+      res.send = (body): Response => {
         if (!res.__end) {
           res.__end = res.end;
         }
 
-        res.end = function(chunk, encoding) {
-          if (res.statusCode !== 200) {
+        res.end = (
+          chunk?: any | Function,
+          encoding?: string | Function,
+          cb?: Function,
+        ): void => {
+          if (res.statusCode !== 200 || body.error) {
             // can't cache at this point because everything is stringified by now,
             //  but we also don't know the statusCode until this point. So we cache always
             //  during 'send', but remove during 'end' if we have an error
             mcache.del(key);
           }
-
-          res.__end(chunk, encoding);
+          if (typeof res.__end !== 'undefined') {
+            res.__end(chunk, encoding, cb);
+          }
         };
 
         // If we don't have something cached, we can cache this response
@@ -39,10 +48,22 @@ export default (
           mcache.put(key, body, duration);
         }
 
-        res.__send(body);
+        if (typeof res.__send !== 'undefined') {
+          res.__send(body);
+        }
+        return res;
       };
 
       next();
     }
   };
+};
+
+export const clear: RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): any => {
+  mcache.clear();
+  res.status(200).send();
 };

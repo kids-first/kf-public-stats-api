@@ -68,30 +68,28 @@
                 "studies": {
                   "type": "array",
                   "items": {
-                    "schema": {
-                      "type": "object",
-                      "required": ["id", "name", "probands", "familyMembers"],
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "example": "SD_ABCDEF12",
-                          "description": "Study ID"
-                        },
-                        "name": {
-                          "type": "string",
-                          "example": "Super Cancer Study",
-                          "description": "short_name of study, use as display name"
-                        },
-                        "probands": {
-                          "type": "number",
-                          "example": "12",
-                          "description": "Number of participants listed as proband"
-                        },
-                        "familyMembers": {
-                          "type": "number",
-                          "example": "34",
-                          "description": "Number of participants that are not proband"
-                        }
+                    "type": "object",
+                    "required": ["id", "name", "probands", "familyMembers"],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "SD_ABCDEF12",
+                        "description": "Study ID"
+                      },
+                      "name": {
+                        "type": "string",
+                        "example": "Super Cancer Study",
+                        "description": "short_name of study, use as display name"
+                      },
+                      "probands": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
                       }
                     }
                   }
@@ -125,20 +123,18 @@
                 "diagnoses": {
                   "type": "array",
                   "items": {
-                    "schema": {
-                      "type": "object",
-                      "required": ["name", "participants"],
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "example": "Structural Birth Defect",
-                          "description": "Name of Diagnosis Category"
-                        },
-                        "participants": {
-                          "type": "number",
-                          "example": "1234",
-                          "description": "Number of participants belonging to this category"
-                        }
+                    "type": "object",
+                    "required": ["name", "participants"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Structural Birth Defect",
+                        "description": "Name of Diagnosis Category"
+                      },
+                      "participants": {
+                        "type": "number",
+                        "example": "1234",
+                        "description": "Number of participants belonging to this category"
                       }
                     }
                   }
@@ -172,25 +168,23 @@
                 "diagnoses": {
                   "type": "array",
                   "items": {
-                    "schema": {
-                      "type": "object",
-                      "required": ["name", "probands", "familyMembers"],
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "example": "Cleft Lip and Palate",
-                          "description": "MONDO Diagnosis Text"
-                        },
-                        "probands": {
-                          "type": "number",
-                          "example": "12",
-                          "description": "Number of participants listed as proband"
-                        },
-                        "familyMembers": {
-                          "type": "number",
-                          "example": "34",
-                          "description": "Number of participants that are not proband"
-                        }
+                    "type": "object",
+                    "required": ["name", "probands", "familyMembers"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Cleft Lip and Palate",
+                        "description": "MONDO Diagnosis Text"
+                      },
+                      "probands": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
                       }
                     }
                   }
@@ -224,25 +218,23 @@
                 "phenotypes": {
                   "type": "array",
                   "items": {
-                    "schema": {
-                      "type": "object",
-                      "required": ["name", "probands", "familyMembers"],
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "example": "Cleft Lip",
-                          "description": "Phenotype Name from HPO"
-                        },
-                        "probands": {
-                          "type": "number",
-                          "example": "12",
-                          "description": "Number of participants listed as proband"
-                        },
-                        "familyMembers": {
-                          "type": "number",
-                          "example": "34",
-                          "description": "Number of participants that are not proband"
-                        }
+                    "type": "object",
+                    "required": ["name", "probands", "familyMembers"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "Cleft Lip",
+                        "description": "Phenotype Name from HPO"
+                      },
+                      "probands": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants listed as proband"
+                      },
+                      "familyMembers": {
+                        "type": "number",
+                        "example": "34",
+                        "description": "Number of participants that are not proband"
                       }
                     }
                   }
@@ -268,26 +260,36 @@
                 "interests": {
                   "type": "array",
                   "items": {
-                    "schema": {
-                      "type": "object",
-                      "required": ["name", "count"],
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "example": "childhood cancer",
-                          "description": "Text for interest as saved in persona (all lowercase)"
-                        },
-                        "count": {
-                          "type": "number",
-                          "example": "12",
-                          "description": "Number of participants that included this interest"
-                        }
+                    "type": "object",
+                    "required": ["name", "count"],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "example": "childhood cancer",
+                        "description": "Text for interest as saved in persona (all lowercase)"
+                      },
+                      "count": {
+                        "type": "number",
+                        "example": "12",
+                        "description": "Number of participants that included this interest"
                       }
                     }
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/cache/bust": {
+      "post": {
+        "summary": "Clear Cache",
+        "description": "Removes all cached responses.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully cleared cache on server."
           }
         }
       }
