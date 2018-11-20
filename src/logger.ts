@@ -15,16 +15,8 @@ const consoleLogger = new winston.transports.Console({
   format: combine(colorize(), timestamp(), consoleFormatter),
 });
 
-const fileLogger = new winston.transports.File({
-  level: env.logLevel,
-  filename: `${env.logPath}/server.log`,
-  maxsize: env.logFileSize,
-  maxFiles: env.logMaxFiles,
-  format: combine(timestamp(), json()),
-});
-
 const logger = winston.createLogger({
-  transports: [consoleLogger, fileLogger],
+  transports: [consoleLogger],
 });
 
 export default logger;
