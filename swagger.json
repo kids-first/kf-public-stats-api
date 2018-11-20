@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "1.1.0",
+    "version": "1.1.1",
     "title": "KidsFirst Public Stats API",
     "description": "Providing public access to select summary data from KidsFirst"
   },
@@ -21,7 +21,7 @@
               "properties": {
                 "version": {
                   "type": "string",
-                  "example": "1.1.0",
+                  "example": "1.1.1",
                   "description": "API Version number (defined in package.json)"
                 },
                 "started": {
