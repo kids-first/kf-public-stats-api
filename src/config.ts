@@ -12,9 +12,6 @@ export const egoClientSecret = process.env.EGO_CLIENT_SECRET;
 export const expressPort = parseInt(process.env.EXPRESS_PORT || '2001');
 
 export const logLevel = process.env.LOG_LEVEL || 'error';
-export const logPath = process.env.LOG_PATH || 'logs';
-export const logFileSize = parseInt(process.env.LOG_FILE_SIZE || '5242880'); //5Mb Default
-export const logMaxFiles = parseInt(process.env.LOG_MAX_FILES || '10');
 
 export const useVault = process.env.USE_VAULT === 'true';
 

@@ -15,7 +15,6 @@ import {
 let state: { client: any } = { client: null };
 const vaultClient = async () => {
   if (!useVault) return false;
-  if (state.client) return state.client;
 
   const authOptions = {
     host: vaultHost,
@@ -30,7 +29,7 @@ const vaultClient = async () => {
           .authenticate()
           .then(r => r.auth.client_token)
           .catch(err => {
-            throw Error(`Vault unable to authenticate: ${authOptions}`);
+            throw Error(`Vault unable to authenticate.`);
           })
       : vaultToken;
 
