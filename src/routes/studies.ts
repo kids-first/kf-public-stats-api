@@ -82,7 +82,7 @@ const nameLabel = (studyId: string): string => `X${studyId}_name`;
 
 const probandFilter = (
   studyId: string,
-  probandValues: (Boolean | String)[],
+  probandValues: Array<boolean | string>,
 ): any => ({
   op: 'and',
   content: [
