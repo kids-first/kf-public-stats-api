@@ -5,6 +5,7 @@ import arranger from '../services/arranger';
 const _ = require('lodash');
 
 const router = express.Router({ mergeParams: true });
+const MISSING_VALUE = '__missing__';
 
 class StudyData {
   id: string;
@@ -79,7 +80,10 @@ const probandLabel = (studyId: string): string => `X${studyId}_proband`;
 const familyLabel = (studyId: string): string => `X${studyId}_familyMembers`;
 const nameLabel = (studyId: string): string => `X${studyId}_name`;
 
-const probandFilter = (studyId: string, probandValue: Boolean): any => ({
+const probandFilter = (
+  studyId: string,
+  probandValues: Array<boolean | string>,
+): any => ({
   op: 'and',
   content: [
     {
@@ -93,7 +97,7 @@ const probandFilter = (studyId: string, probandValue: Boolean): any => ({
       op: 'in',
       content: {
         field: 'is_proband',
-        value: [probandValue.toString()],
+        value: probandValues.map(_.toString),
       },
     },
   ],
@@ -145,8 +149,11 @@ const buildParticipantQuery = (studyIds: string[]): string => {
 const buildParticipantVariables = (studyIds: string[]): any => {
   const output = {};
   studyIds.forEach(studyId => {
-    output[probandLabel(studyId)] = probandFilter(studyId, true);
-    output[familyLabel(studyId)] = probandFilter(studyId, false);
+    output[probandLabel(studyId)] = probandFilter(studyId, [true]);
+    output[familyLabel(studyId)] = probandFilter(studyId, [
+      false,
+      MISSING_VALUE,
+    ]);
     output[nameLabel(studyId)] = nameFilter(studyId);
   });
   return output;
