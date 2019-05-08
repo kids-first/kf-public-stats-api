@@ -7,7 +7,7 @@ import router from './routes/router';
 import cache from './middleware/cache';
 import { clear as cacheClear } from './middleware/cache';
 
-import egoTokenMiddleware from 'ego-token-middleware';
+import egoTokenMiddleware from 'kfego-token-middleware';
 
 import * as express from 'express';
 import * as cors from 'cors';
