@@ -4,7 +4,7 @@ import ego from './ego';
 import axios from 'axios';
 
 const getInterestCounts = async (): Promise<PropertyCounts> => {
-  const url = `${searchMembersApi}`;
+  const url = `${searchMembersApi}/interests_stats`;
 
   const token = await ego.getToken();
   const Authorization: string = `Bearer ${token}`;
@@ -12,7 +12,7 @@ const getInterestCounts = async (): Promise<PropertyCounts> => {
     headers: { Authorization, 'Content-Type': 'application/json' },
   };
 
-  return await axios
+  return axios
       .get(url,  config)
       .then(response => response.data)
       .catch(err => {
