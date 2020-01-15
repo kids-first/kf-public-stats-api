@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 
-import { egoApi, arrangerApi, personaApi } from './config';
+import { egoApi, arrangerApi, searchMembersApi } from './config';
 import * as packageJson from '../package.json';
 import logger from './logger';
 import router from './routes/router';
@@ -63,7 +63,7 @@ export default () => {
       started: startTime.toISOString(),
       ego: egoApi,
       arranger: arrangerApi,
-      persona: personaApi,
+      searchMembers: searchMembersApi,
     }),
   );
 
