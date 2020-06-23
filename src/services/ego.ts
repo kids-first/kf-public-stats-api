@@ -2,16 +2,7 @@ import axios from 'axios';
 import * as FormData from 'form-data';
 import * as jwt from 'jsonwebtoken';
 
-import {
-  egoApi,
-  egoClientId,
-  egoClientSecret,
-  useVault,
-  vaultEgoClientIdKey,
-  vaultEgoClientSecretKey,
-  vaultPath,
-} from '../config';
-import vaultClient from './vault';
+import { egoApi, egoClientId, egoClientSecret } from '../config';
 
 let appToken: string;
 let expiry: number;
@@ -25,23 +16,13 @@ class Credentials {
   }
 }
 
-const setToken = token => {
+const setToken = (token) => {
   appToken = token;
   expiry = jwt.decode(appToken).exp * 1000;
 };
 
-const getApplicationCredentials = async (): Promise<Credentials> => {
-  if (!useVault) {
-    return new Credentials(egoClientId, egoClientSecret);
-  } else {
-    const client = await vaultClient();
-    const { data } = await client.read(vaultPath);
-    return new Credentials(
-      data[vaultEgoClientIdKey],
-      data[vaultEgoClientSecretKey],
-    );
-  }
-};
+const getApplicationCredentials = async (): Promise<Credentials> =>
+  new Credentials(egoClientId, egoClientSecret);
 
 const fetchToken = async (): Promise<string> => {
   const { clientId, clientSecret } = await getApplicationCredentials();
@@ -56,8 +37,8 @@ const fetchToken = async (): Promise<string> => {
   return await axios
     .create({ headers: data.getHeaders() })
     .post(tokenUrl, data)
-    .then(response => response.data.access_token)
-    .catch(err => {
+    .then((response) => response.data.access_token)
+    .catch((err) => {
       throw new Error(`Error authenticating with EGO: ${err.message}`);
     });
 };

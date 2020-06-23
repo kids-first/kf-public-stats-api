@@ -1,7 +1,7 @@
 import * as winston from 'winston';
 import * as env from './config';
 
-const { colorize, combine, timestamp, json, printf } = winston.format;
+const { colorize, combine, timestamp, printf } = winston.format;
 
 let count = 0;
 
