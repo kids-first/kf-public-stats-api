@@ -3,7 +3,6 @@ ecs_service_type_1_standard {
     projectName             = "kf-public-stats-api"
     create_default_iam_role = "0"
     environments            = "dev,qa,prd"
-    destroy_dev             = "true"
     docker_image_type       = "debian"
     entrypoint_command      = "yarn start"
     deploy_scripts_version  = "master"
