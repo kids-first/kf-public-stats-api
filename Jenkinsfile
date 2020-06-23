@@ -5,7 +5,7 @@ ecs_service_type_1_standard {
     environments            = "dev,qa,prd"
     destroy_dev             = "true"
     docker_image_type       = "debian"
-    entrypoint_command      = "/srv/ego/exec/run.sh"
+    entrypoint_command      = "yarn start"
     deploy_scripts_version  = "master"
     quick_deploy            = "true"
     external_config_repo    = "false"
