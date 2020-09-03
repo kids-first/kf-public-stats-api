@@ -1,7 +1,7 @@
 @Library(value='kids-first/aws-infra-jenkins-shared-libraries', changelog=false) _
 ecs_service_type_1_standard {
     projectName             = "kf-public-stats-api"
-    create_default_iam_role = "0"
+    create_default_iam_role = "1"
     environments            = "dev,qa,prd"
     docker_image_type       = "debian"
     entrypoint_command      = "yarn start"
