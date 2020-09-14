@@ -16,6 +16,7 @@ ecs_service_type_1_standard {
     health_check_path       = "/v1/status"
     internal_app            = "false"
     dependencies            = "ecr"
+    additional_ssl_cert_domain_name = "*.kidsfirstdrc.org"
 }
 
 
