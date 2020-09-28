@@ -20,7 +20,7 @@ class StudiesCount {
 const studiesQuery = `
   query($proband: JSON, $others: JSON) {
     participant{
-      proband_only: aggregations(filters:$proband) {
+      proband_only: aggregations(filters:$proband, include_missing:false) {
         study__short_name{
           
           buckets
@@ -31,7 +31,7 @@ const studiesQuery = `
           }
         }
       }
-      others: aggregations(filters:$others) {
+      others: aggregations(filters:$others, include_missing:false) {
         study__short_name{
           
           buckets

@@ -18,7 +18,7 @@ class DiagnosesCount {
 const diagnosesQuery = `
   query($proband: JSON, $others: JSON) {
     participant{
-      proband_only: aggregations(filters:$proband) {
+      proband_only: aggregations(filters:$proband, include_missing:false) {
         diagnoses__diagnosis_category {
           buckets
           {
@@ -28,7 +28,7 @@ const diagnosesQuery = `
           }
         }
       }
-      others: aggregations(filters:$others) {
+      others: aggregations(filters:$others, include_missing:false) {
         diagnoses__diagnosis_category {
           buckets
           {
