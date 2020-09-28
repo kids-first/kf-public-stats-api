@@ -27,7 +27,7 @@ const studiesQuery = `
           {
             key
             doc_count
-            top_hits(_source:"kf_id", size:1)
+            top_hits(_source:"study.kf_id", size:1)
           }
         }
       }
@@ -38,7 +38,7 @@ const studiesQuery = `
           {
             key
             doc_count
-            top_hits(_source:"kf_id", size:1)
+            top_hits(_source:"study.kf_id", size:1)
           }
         }
       
@@ -67,12 +67,12 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
     if (probands) {
       if (all) {
 
-        return new StudiesCount(key, probands.top_hits.kf_id, probands.doc_count, all.doc_count);
+        return new StudiesCount(probands.top_hits.study.kf_id, key, probands.doc_count, all.doc_count);
       } else {
-        return new StudiesCount(key, probands.top_hits.kf_id, probands.doc_count, 0);
+        return new StudiesCount(probands.top_hits.study.kf_id, key, probands.doc_count, 0);
       }
     } else {
-      return new StudiesCount(key, all.top_hits.kf_id, 0, all.doc_count);
+      return new StudiesCount(all.top_hits.study.kf_id, key, 0, all.doc_count);
     }
   });
 
