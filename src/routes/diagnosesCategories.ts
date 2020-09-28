@@ -100,12 +100,11 @@ router.get('/', async (req, res, next) => {
   try {
     const {project} = req.params;
     const diagnoses = await fetchDiagnoses(project);
-    res.send(diagnoses);
+    res.send({diagnoses: diagnoses});
   } catch (e) {
     next(e);
   }
 });
-
 
 
 export default router;
