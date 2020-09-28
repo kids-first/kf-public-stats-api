@@ -18,7 +18,7 @@ class PhenotypesCount {
 const phenotypesQuery = `
   query($proband: JSON, $others: JSON) {
     participant{
-      proband_only: aggregations(filters:$proband) {
+      proband_only: aggregations(filters:$proband, include_missing:false) {
         phenotype__hpo_phenotype_observed_text {
           buckets
           {
@@ -28,7 +28,7 @@ const phenotypesQuery = `
           }
         }
       }
-      others: aggregations(filters:$others) {
+      others: aggregations(filters:$others, include_missing:false) {
         phenotype__hpo_phenotype_observed_text {
           buckets
           {
