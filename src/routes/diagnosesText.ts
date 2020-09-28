@@ -58,7 +58,7 @@ const fetchDiagnoses = async (project: string): Promise<DiagnosesCount[]> => {
   );
   const allBucketsMap = bucketAsMap(allBuckets);
 
-  return _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+  const merged = _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
     if (probands) {
       if (all) {
         return new DiagnosesCount(key, probands.doc_count, all.doc_count);
@@ -69,6 +69,7 @@ const fetchDiagnoses = async (project: string): Promise<DiagnosesCount[]> => {
       return new DiagnosesCount(key, 0, all.doc_count);
     }
   });
+  return _.values(merged);
 
 
 };
