@@ -18,9 +18,9 @@ class StudiesCount {
 }
 
 const studiesQuery = `
-  query($sqon: JSON) {
+  query($proband: JSON, $others: JSON) {
     participant{
-      proband_only: aggregations(filters:$sqon) {
+      proband_only: aggregations(filters:$proband) {
         study__short_name{
           
           buckets
@@ -31,7 +31,7 @@ const studiesQuery = `
           }
         }
       }
-      all: aggregations {
+      others: aggregations(filters:$others) {
         study__short_name{
           
           buckets
@@ -47,7 +47,10 @@ const studiesQuery = `
   }`;
 const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
 
-  const variables = {sqon: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"}}
+  const variables = {
+    proband: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"},
+    others: {content: [{content: {field: "is_proband", value: ["false", "__missing__"]}, op: "in"}], op: "and"}
+  }
   const data = await arranger
       .query(project, studiesQuery, variables)
       .then(response => response.data);
@@ -55,49 +58,38 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
   const probandBuckets = _.get(
       data,
       'participant.proband_only.study__short_name.buckets',
-  );
-  const probandBucketsMap = bucketAsMap(probandBuckets)
-  const allBuckets = _.get(
-      data,
-      'participant.all.study__short_name.buckets',
-  );
-  const allBucketsMap = bucketAsMap(allBuckets);
-
-  const merged = _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
-    if (probands) {
-      if (all) {
-
-        return new StudiesCount(probands.top_hits.study.kf_id, key, probands.doc_count, all.doc_count);
-      } else {
-        return new StudiesCount(probands.top_hits.study.kf_id, key, probands.doc_count, 0);
-      }
-    } else {
-      return new StudiesCount(all.top_hits.study.kf_id, key, 0, all.doc_count);
-    }
+  ).map(e => {
+    return {...e, proband: true};
   });
-  return _.values(merged)
+
+  const othersBuckets = _.get(
+      data,
+      'participant.others.study__short_name.buckets',
+  ).map(e => {
+    return {...e, proband: false};
+  });
+
+  const agg = probandBuckets.concat(othersBuckets)
+
+  const g = _.groupBy(agg, 'key')
+
+  return _.map(g, e => {
+    const probands = _.get(
+        _.find(e, p => {
+          return p.proband;
+        }),
+        'doc_count', 0)
+    const familyMembers = _.get(
+        _.find(e, p => {
+          return !p.proband;
+        }),
+        'doc_count', 0)
+    const f = _.first(e)
+    return new StudiesCount(f.top_hits.study.kf_id, f.key, probands, familyMembers);
+  });
+
 
 };
-
-/**
- * const buckets = [
- *  {'bucket': 'd1', 'bucket_count': 10},
- *  {'bucket': 'd2', 'bucket_count': 15}
- * ];
- *
- * bucketAsMap(buckets)
- * {
- *  d1: {'bucket': 'd1', 'bucket_count': 10},
- *  d2: {'bucket': 'd2', 'bucket_count': 15}
- * }
- * @param buckets
- */
-const bucketAsMap = buckets => {
-  const bucketArray = buckets.map(b => {
-    return {[b.key]: b};
-  });
-  return Object.assign({}, ...bucketArray)
-}
 
 const router = express.Router({mergeParams: true});
 
