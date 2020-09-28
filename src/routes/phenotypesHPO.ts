@@ -40,7 +40,7 @@ const phenotypesQuery = `
       }      
     }
   }`;
-const fetchPhenotypes = async (project: string): Promise<PhenotypesCount[]> => {
+const fetchDiagnoses = async (project: string): Promise<PhenotypesCount[]> => {
 
   const variables = {sqon: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"}}
   const data = await arranger
@@ -98,7 +98,7 @@ const router = express.Router({mergeParams: true});
 router.get('/', async (req, res, next) => {
   try {
     const {project} = req.params;
-    const diagnoses = await fetchPhenotypes(project);
+    const diagnoses = await fetchDiagnoses(project);
     res.send(diagnoses);
   } catch (e) {
     next(e);
