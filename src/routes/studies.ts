@@ -69,7 +69,6 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
     return {...e, proband: false};
   });
 
-  console.log(othersBuckets)
   const agg = probandBuckets.concat(othersBuckets)
 
   const g = _.groupBy(agg, 'key')
