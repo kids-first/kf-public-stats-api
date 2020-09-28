@@ -1,159 +1,110 @@
 import * as express from 'express';
 import arranger from '../services/arranger';
+
 const _ = require('lodash');
 
-const router = express.Router({ mergeParams: true });
-
-class CategoryData {
+class DiagnosesCount {
   name: string;
-  participants: number;
-  constructor(_name: string, _participants: number) {
+  probands: number;
+  familyMembers: number;
+
+  constructor(_name: string, _probands: number, _familyMembers: number) {
     this.name = _name;
-    this.participants = _participants;
+    this.probands = _probands;
+    this.familyMembers = _familyMembers;
   }
 }
 
-/**
- * Fetch Categories
- * ---------------
- *    Call Arranger to get all diagnosis categories
- */
-const fetchCategoryNames = async (project: string): Promise<string[]> => {
-  const query = `{
-    participant {
-      aggregations {
+const diagnosesQuery = `
+  query($sqon: JSON) {
+    participant{
+      proband_only: aggregations(filters:$sqon) {
         diagnoses__diagnosis_category {
-          buckets{
+          buckets
+          {
             key
+            doc_count
+
           }
         }
       }
+      all: aggregations {
+        diagnoses__diagnosis_category {
+          buckets
+          {
+            key
+            doc_count
+
+          }
+        }
+      }      
     }
   }`;
+const fetchDiagnoses = async (project: string): Promise<DiagnosesCount[]> => {
 
-  const response = await arranger.query(project, query);
-  const data = response.data;
+  const variables = {sqon: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"}}
+  const data = await arranger
+      .query(project, diagnosesQuery, variables)
+      .then(response => response.data);
 
-  const buckets = _.get(
-    data,
-    'participant.aggregations.diagnoses__diagnosis_category.buckets',
+  const probandBuckets = _.get(
+      data,
+      'participant.proband_only.diagnoses__diagnosis_category.buckets',
   );
-  return _.isArray(buckets) ? buckets.map(bucket => bucket.key) : [];
+  const probandBucketsMap = bucketAsMap(probandBuckets)
+  const allBuckets = _.get(
+      data,
+      'participant.all.diagnoses__diagnosis_category.buckets',
+  );
+  const allBucketsMap = bucketAsMap(allBuckets);
+
+  return _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+    if (probands) {
+      if (all) {
+        return new DiagnosesCount(key, probands.doc_count, all.doc_count);
+      } else {
+        return new DiagnosesCount(key, probands.doc_count, 0);
+      }
+    } else {
+      return new DiagnosesCount(key, 0, all.doc_count);
+    }
+  });
+
+
 };
 
 /**
- * Fetch Participant Count for Categories
- * --------------------------------------
- *    Calls arranger to get total participant count for each Diagnosis Category
- *    Returns this data in a convenient array of CategoryData objects
+ * const buckets = [
+ *  {'bucket': 'd1', 'bucket_count': 10},
+ *  {'bucket': 'd2', 'bucket_count': 15}
+ * ];
  *
- * - probandSqon/familySqon and probandLabel/familyLabel :
- *    Generate SQON variable names, and generate labels for the arranger queries
- *
- * - probandFilter :
- *    Builds the SQON filter object, can build for proband (is_proband = true) or familyMember (is_proband = false)
- *
- * - buildParticipantQuery :
- *    Arranger query for participant data for all studies
- *
- * - buildParticipantVariables :
- *    Arranger SQON variables for all studies
- *
- * - fetchParticipantData :
- *    The actual query logic!
- *    Prepare arranger inputs, call arranger queries, and return StudyData array
- *
+ * bucketAsMap(buckets)
+ * {
+ *  d1: {'bucket': 'd1', 'bucket_count': 10},
+ *  d2: {'bucket': 'd2', 'bucket_count': 15}
+ * }
+ * @param buckets
  */
-
-const categoryLabel = (category: string): string =>
-  category.replace(/[^a-zA-Z0-9]/g, '_');
-
-const categoryFilter = (category: string): any => ({
-  op: 'and',
-  content: [
-    {
-      op: 'in',
-      content: {
-        field: 'diagnoses.diagnosis_category',
-        value: [category],
-      },
-    },
-  ],
-});
-
-const buildParticipantQuery = (categories: string[]): string => {
-  const queryParams = categories
-    .map(category => `$${categoryLabel(category)}: JSON`)
-    .join(', ');
-
-  const queries = categories
-    .map(
-      category =>
-        `
-        ${categoryLabel(category)}: hits(filters: $${categoryLabel(
-          category,
-        )}) {total}
-        `,
-    )
-    .join('');
-
-  return `query(${queryParams}) {participant{${queries}}}`;
-};
-
-const buildParticipantVariables = (categories: string[]): any => {
-  const output = {};
-  categories.forEach(category => {
-    output[categoryLabel(category)] = categoryFilter(category);
+const bucketAsMap = buckets => {
+  const bucketArray = buckets.map(b => {
+    return {[b.key]: b};
   });
-  return output;
-};
+  return Object.assign({}, ...bucketArray)
+}
 
-const fetchCategoryParticipantData = async (
-  project: string,
-  categories: string[],
-): Promise<CategoryData[]> => {
-  const query = buildParticipantQuery(categories);
-
-  const variables = buildParticipantVariables(categories);
-
-  const response = await arranger.query(project, query, variables);
-  const data = response.data;
-
-  return categories.map(category => {
-    const participants = parseInt(
-      _.get(data, `participant.${categoryLabel(category)}.total`, 0),
-    );
-    const name =
-      category === arranger.MISSING_VALUE
-        ? arranger.MISSING_DISPLAY_TEXT
-        : category;
-    return new CategoryData(name, participants);
-  });
-};
-
-/**
- *  ----- Routes -----
- * */
+const router = express.Router({mergeParams: true});
 
 router.get('/', async (req, res, next) => {
   try {
-    const { project } = req.params;
-    const categoryIds = await fetchCategoryNames(project);
-    const categoryData = await fetchCategoryParticipantData(
-      project,
-      categoryIds,
-    );
-
-    const output = {
-      diagnoses: categoryData.map(category => {
-        const { name, participants } = category;
-        return { name, participants };
-      }),
-    };
-    res.send(output);
+    const {project} = req.params;
+    const diagnoses = await fetchDiagnoses(project);
+    res.send(diagnoses);
   } catch (e) {
     next(e);
   }
 });
+
+
 
 export default router;

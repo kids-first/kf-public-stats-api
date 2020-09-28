@@ -1,14 +1,13 @@
 import * as express from 'express';
 import arranger from '../services/arranger';
+
 const _ = require('lodash');
 
-const router = express.Router({ mergeParams: true });
-
-class PhenotypeData {
-  id: string;
+class PhenotypesCount {
   name: string;
   probands: number;
   familyMembers: number;
+
   constructor(_name: string, _probands: number, _familyMembers: number) {
     this.name = _name;
     this.probands = _probands;
@@ -16,168 +15,96 @@ class PhenotypeData {
   }
 }
 
-/**
- * Fetch Phenotypes
- * ---------------
- *    Call Arranger to get all the currently available Phenotype Observed HPO Text values
- */
-const fetchPhenotypes = async (project: string): Promise<string[]> => {
-  const query = `{
-    participant {
-      aggregations {
+const phenotypesQuery = `
+  query($sqon: JSON) {
+    participant{
+      proband_only: aggregations(filters:$sqon) {
         phenotype__hpo_phenotype_observed_text {
           buckets
           {
             key
+            doc_count
+
           }
         }
       }
+      all: aggregations {
+        phenotype__hpo_phenotype_observed_text {
+          buckets
+          {
+            key
+            doc_count
+
+          }
+        }
+      }      
     }
   }`;
+const fetchDiagnoses = async (project: string): Promise<PhenotypesCount[]> => {
 
+  const variables = {sqon: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"}}
   const data = await arranger
-    .query(project, query)
-    .then(response => response.data);
+      .query(project, phenotypesQuery, variables)
+      .then(response => response.data);
 
-  const buckets = _.get(
-    data,
-    'participant.aggregations.phenotype__hpo_phenotype_observed_text.buckets',
+  const probandBuckets = _.get(
+      data,
+      'participant.proband_only.phenotype__hpo_phenotype_observed_text.buckets',
   );
-  return _.isArray(buckets) ? buckets.map(bucket => bucket.key) : [];
+  const probandBucketsMap = bucketAsMap(probandBuckets)
+  const allBuckets = _.get(
+      data,
+      'participant.all.phenotype__hpo_phenotype_observed_text.buckets',
+  );
+  const allBucketsMap = bucketAsMap(allBuckets);
+
+  return _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+    if (probands) {
+      if (all) {
+        return new PhenotypesCount(key, probands.doc_count, all.doc_count);
+      } else {
+        return new PhenotypesCount(key, probands.doc_count, 0);
+      }
+    } else {
+      return new PhenotypesCount(key, 0, all.doc_count);
+    }
+  });
+
+
 };
 
 /**
- * Fetch Participant Data for all studies
- * --------------------------------------
- *    Calls arranger to get proband and familyMember counts for all available studies
- *    Returns this data in a convenient array of StudyData objects
+ * const buckets = [
+ *  {'bucket': 'd1', 'bucket_count': 10},
+ *  {'bucket': 'd2', 'bucket_count': 15}
+ * ];
  *
- * - probandSqon/familySqon and probandLabel/familyLabel :
- *    Generate SQON variable names, and generate labels for the arranger queries
- *
- * - probandFilter :
- *    Builds the SQON filter object, can build for proband (is_proband = true) or familyMember (is_proband = false)
- *
- * - buildParticipantQuery :
- *    Arranger query for participant data for all studies
- *
- * - buildParticipantVariables :
- *    Arranger SQON variables for all studies
- *
- * - fetchParticipantData :
- *    The actual query logic!
- *    Prepare arranger inputs, call arranger queries, and return StudyData array
- *
+ * bucketAsMap(buckets)
+ * {
+ *  d1: {'bucket': 'd1', 'bucket_count': 10},
+ *  d2: {'bucket': 'd2', 'bucket_count': 15}
+ * }
+ * @param buckets
  */
-const removeNonAlpha = (text: string): string =>
-  text.replace(/[^a-zA-Z0-9]/g, '_');
-
-const probandLabel = (phenotype: string): string =>
-  `X${removeNonAlpha(phenotype)}_proband`;
-const familyLabel = (phenotype: string): string =>
-  `X${removeNonAlpha(phenotype)}_familyMembers`;
-
-const probandFilter = (phenotype: string, probandValue: Boolean): any => ({
-  op: 'and',
-  content: [
-    {
-      op: 'in',
-      content: {
-        field: 'phenotype.hpo_phenotype_observed_text',
-        value: [phenotype],
-      },
-    },
-    {
-      op: 'in',
-      content: {
-        field: 'is_proband',
-        value: [probandValue.toString()],
-      },
-    },
-  ],
-});
-
-const buildParticipantQuery = (phenotypes: string[]): string => {
-  const queryParams = phenotypes
-    .map(
-      phenotype =>
-        `$${probandLabel(phenotype)}: JSON, $${familyLabel(phenotype)}: JSON`,
-    )
-    .join(', ');
-
-  const queries = phenotypes
-    .map(
-      phenotype =>
-        `
-        ${probandLabel(phenotype)}: aggregations(filters: $${probandLabel(
-          phenotype,
-        )}) {kf_id {buckets{key}}}
-        ${familyLabel(phenotype)}: aggregations(filters: $${familyLabel(
-          phenotype,
-        )}) {kf_id {buckets{key}}}`,
-    )
-    .join('');
-
-  return `query(${queryParams}) {participant{${queries}}}`;
-};
-
-const buildParticipantVariables = (phenotypes: string[]): any => {
-  const output = {};
-  phenotypes.forEach(phenotype => {
-    output[probandLabel(phenotype)] = probandFilter(phenotype, true);
-    output[familyLabel(phenotype)] = probandFilter(phenotype, false);
+const bucketAsMap = buckets => {
+  const bucketArray = buckets.map(b => {
+    return {[b.key]: b};
   });
-  return output;
-};
+  return Object.assign({}, ...bucketArray)
+}
 
-const fetchParticipantData = async (
-  project: string,
-  phenotypes: string[],
-): Promise<PhenotypeData[]> => {
-  const query = buildParticipantQuery(phenotypes);
-
-  const variables = buildParticipantVariables(phenotypes);
-
-  const response = await arranger.query(project, query, variables);
-  const data = response.data;
-
-  return phenotypes.map(phenotype => {
-    const probands = parseInt(
-      _.get(data, `participant.${probandLabel(phenotype)}.kf_id.buckets`, [])
-        .length,
-    );
-    const familyMembers = parseInt(
-      _.get(data, `participant.${familyLabel(phenotype)}.kf_id.buckets`, [])
-        .length,
-    );
-    const name =
-      phenotype === arranger.MISSING_VALUE
-        ? arranger.MISSING_DISPLAY_TEXT
-        : phenotype;
-    return new PhenotypeData(name, probands, familyMembers);
-  });
-};
-
-/**
- *  ----- Routes -----
- * */
+const router = express.Router({mergeParams: true});
 
 router.get('/', async (req, res, next) => {
   try {
-    const { project } = req.params;
-    const phenotypes = await fetchPhenotypes(project);
-    const phenotypeData = await fetchParticipantData(project, phenotypes);
-
-    const output = {
-      phenotypes: phenotypeData.map(study => {
-        const { name, probands, familyMembers } = study;
-        return { name, probands, familyMembers };
-      }),
-    };
-    res.send(output);
+    const {project} = req.params;
+    const diagnoses = await fetchDiagnoses(project);
+    res.send(diagnoses);
   } catch (e) {
     next(e);
   }
 });
+
+
 
 export default router;
