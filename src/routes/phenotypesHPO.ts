@@ -58,7 +58,7 @@ const fetchPhenotypes = async (project: string): Promise<PhenotypesCount[]> => {
   );
   const allBucketsMap = bucketAsMap(allBuckets);
 
-  const merged =  _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+  const merged = _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
     if (probands) {
       if (all) {
         return new PhenotypesCount(key, probands.doc_count, all.doc_count);
@@ -100,12 +100,11 @@ router.get('/', async (req, res, next) => {
   try {
     const {project} = req.params;
     const phenotypes = await fetchPhenotypes(project);
-    res.send(phenotypes);
+    res.send({phenotypes: phenotypes});
   } catch (e) {
     next(e);
   }
 });
-
 
 
 export default router;

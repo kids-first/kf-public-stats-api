@@ -63,7 +63,7 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
   );
   const allBucketsMap = bucketAsMap(allBuckets);
 
-  const merged =  _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+  const merged = _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
     if (probands) {
       if (all) {
 
@@ -105,7 +105,7 @@ router.get('/', async (req, res, next) => {
   try {
     const {project} = req.params;
     const studies = await fetchStudies(project);
-    res.send(studies);
+    res.send({studies: studies});
   } catch (e) {
     next(e);
   }
