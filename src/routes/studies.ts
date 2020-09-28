@@ -63,7 +63,7 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
   );
   const allBucketsMap = bucketAsMap(allBuckets);
 
-  return _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+  const merged =  _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
     if (probands) {
       if (all) {
 
@@ -75,7 +75,7 @@ const fetchStudies = async (project: string): Promise<StudiesCount[]> => {
       return new StudiesCount(all.top_hits.study.kf_id, key, 0, all.doc_count);
     }
   });
-
+  return _.values(merged)
 
 };
 

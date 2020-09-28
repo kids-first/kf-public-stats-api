@@ -40,7 +40,7 @@ const phenotypesQuery = `
       }      
     }
   }`;
-const fetchDiagnoses = async (project: string): Promise<PhenotypesCount[]> => {
+const fetchPhenotypes = async (project: string): Promise<PhenotypesCount[]> => {
 
   const variables = {sqon: {content: [{content: {field: "is_proband", value: ["true"]}, op: "in"}], op: "and"}}
   const data = await arranger
@@ -58,7 +58,7 @@ const fetchDiagnoses = async (project: string): Promise<PhenotypesCount[]> => {
   );
   const allBucketsMap = bucketAsMap(allBuckets);
 
-  return _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
+  const merged =  _.mergeWith(probandBucketsMap, allBucketsMap, function customizer(probands, all, key) {
     if (probands) {
       if (all) {
         return new PhenotypesCount(key, probands.doc_count, all.doc_count);
@@ -69,6 +69,7 @@ const fetchDiagnoses = async (project: string): Promise<PhenotypesCount[]> => {
       return new PhenotypesCount(key, 0, all.doc_count);
     }
   });
+  return _.values(merged)
 
 
 };
@@ -98,8 +99,8 @@ const router = express.Router({mergeParams: true});
 router.get('/', async (req, res, next) => {
   try {
     const {project} = req.params;
-    const diagnoses = await fetchDiagnoses(project);
-    res.send(diagnoses);
+    const phenotypes = await fetchPhenotypes(project);
+    res.send(phenotypes);
   } catch (e) {
     next(e);
   }
