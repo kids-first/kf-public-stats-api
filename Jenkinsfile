@@ -17,7 +17,6 @@ ecs_service_type_1_standard {
     internal_app            = "false"
     dependencies            = "ecr"
     additional_ssl_cert_domain_name = "*.kidsfirstdrc.org"
-    create_sqs              = "1"
 }
 
 
