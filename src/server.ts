@@ -6,26 +6,24 @@ import logger from './logger';
 import router from './routes/router';
 import cache from './middleware/cache';
 import { clear as cacheClear } from './middleware/cache';
-
+// @ts-ignore
 import egoTokenMiddleware from 'kfego-token-middleware';
-
+// @ts-ignore
 import * as express from 'express';
+// @ts-ignore
 import * as cors from 'cors';
 import * as path from 'path';
-// @ts-ignore
-import get from 'lodash/get';
 
 const startTime = new Date();
 
 const adminGate = (req, res, next) => {
   const token = req.jwt;
   const isApp =
-    get(token, 'context.application.status', '').toLowerCase() === 'approved';
+    (token?.context?.application?.status || '').toLowerCase() === 'approved';
   const isAdmin =
-    get(token, 'context.user.roles', []).filter(
+    (token?.context?.user?.roles || []).filter(
       (role) => role.toLowerCase() === 'admin',
     ).length >= 1;
-
   if (isApp || isAdmin) {
     next();
   } else {
@@ -58,7 +56,7 @@ export default () => {
 
   app.post('/cache/bust', egoMiddleware, adminGate, cacheClear);
 
- router.get('/status', (req, res) =>
+  router.get('/status', (req, res) =>
     res.send({
       version: (<any>packageJson || {}).version,
       started: startTime.toISOString(),
@@ -69,7 +67,7 @@ export default () => {
   );
 
   // 404 Handler
-   app.use((req, res, _) => {
+  app.use((req, res, _) => {
     res.status(404).send({
       error: true,
       message: 'Not Found',

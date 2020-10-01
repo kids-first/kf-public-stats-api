@@ -2,11 +2,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "module": "commonjs",
-    "target": "es5",
-    "lib": ["es7"],
+    "target": "es6",
+    "lib": ["es2018"],
     "sourceMap": true,
     "allowJs": true,
-    "jsx": "react",
     "moduleResolution": "node",
     "rootDirs": ["./"],
     "forceConsistentCasingInFileNames": true,
