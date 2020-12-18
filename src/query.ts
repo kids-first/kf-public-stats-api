@@ -36,7 +36,8 @@ export const fetchCountsQuery = async (
           filters: {
             content: [{ content: { field: "is_proband", value: ["true"] }, op: "in" }]
             op: "and"
-          }
+          },
+          include_missing:false
         ) {
           ${targetField} {
             buckets {
@@ -52,7 +53,8 @@ export const fetchCountsQuery = async (
               { content: { field: "is_proband", value: ["false", "__missing__"] }, op: "in" }
             ]
             op: "and"
-          }
+          },
+          include_missing:false
         ) {
           ${targetField} {
             buckets {
