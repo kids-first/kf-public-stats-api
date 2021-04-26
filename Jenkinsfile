@@ -18,6 +18,7 @@ ecs_service_type_1_standard {
     dependencies            = "ecr"
     additional_ssl_cert_domain_name = "*.kidsfirstdrc.org"
     publish_to_public_repo = "true"
+    create_additional_internal_alb = "1"
 }
 
 
