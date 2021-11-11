@@ -1,6 +1,6 @@
 {
   "name": "kf-public-stats-api",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "main": "index.js",
   "repository": "git@github.com:kids-first/kf-public-stats-api.git",
   "author": "Jon Eubank <joneubank@gmail.com>",
@@ -21,11 +21,11 @@
     "cors": "^2.8.5",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
-    "form-data": "^2.3.3",
     "jsonwebtoken": "^8.3.0",
-    "kfego-token-middleware": "^1.1.0",
+    "keycloak-connect": "^14.0.0",
     "memory-cache": "^0.2.0",
     "node-vault": "^0.9.0",
+    "query-string": "^7.0.1",
     "winston": "^3.0.0"
   },
   "devDependencies": {
