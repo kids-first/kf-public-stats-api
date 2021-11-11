@@ -1,13 +1,11 @@
 import 'babel-polyfill';
-
-import { egoApi, arrangerApi, searchMembersApi } from './config';
+import * as Keycloak from 'keycloak-connect';
+import { keycloakApi, arrangerApi, searchMembersApi, keycloakRealm, keycloakApiClientId } from './config';
 import * as packageJson from '../package.json';
 import logger from './logger';
 import router from './routes/router';
 import cache from './middleware/cache';
 import { clear as cacheClear } from './middleware/cache';
-// @ts-ignore
-import egoTokenMiddleware from 'kfego-token-middleware';
 // @ts-ignore
 import * as express from 'express';
 // @ts-ignore
@@ -16,32 +14,27 @@ import * as path from 'path';
 
 const startTime = new Date();
 
-const adminGate = (req, res, next) => {
-  const token = req.jwt;
-  const isApp =
-    (token?.context?.application?.status || '').toLowerCase() === 'approved';
-  const isAdmin =
-    (token?.context?.user?.roles || []).filter(
-      (role) => role.toLowerCase() === 'admin',
-    ).length >= 1;
-  if (isApp || isAdmin) {
-    next();
-  } else {
-    res.status(403).send({
-      error: true,
-      message: 'Forbidden: Only available to applications or admin users',
-    });
-  }
-};
+const keycloakConfig = {
+  realm: keycloakRealm,
+  'confidential-port': 0,
+  'bearer-only': true,
+  'auth-server-url': keycloakApi,
+  'ssl-required': 'external',
+  resource: keycloakApiClientId,
+} as Keycloak.KeycloakConfig;
 
-const egoMiddleware = egoTokenMiddleware({
-  egoURL: egoApi,
-});
+const keycloak = new Keycloak({}, keycloakConfig);
 
 export default () => {
   const app = express();
 
   app.use(cors());
+  app.use(
+    keycloak.middleware({
+        logout: '/logout',
+        admin: '/',
+    }),
+);
 
   //swagger
   app.use('/docs', (req, res) => {
@@ -54,13 +47,13 @@ export default () => {
 
   app.use('/v1', cache(), router);
 
-  app.post('/cache/bust', egoMiddleware, adminGate, cacheClear);
+  app.post('/cache/bust', keycloak.protect('realm:ADMIN'), cacheClear);
 
   router.get('/status', (req, res) =>
     res.send({
       version: (<any>packageJson || {}).version,
       started: startTime.toISOString(),
-      ego: egoApi,
+      keycloak: keycloakApi,
       arranger: arrangerApi,
       searchMembers: searchMembersApi,
     }),

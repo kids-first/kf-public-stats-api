@@ -1,5 +1,5 @@
 import { arrangerApi } from '../config';
-import ego from './ego';
+import keycloak from './keycloak';
 
 import axios from 'axios';
 
@@ -13,7 +13,7 @@ const query = async (
 ): Promise<any> => {
   const url = `${arrangerApi}/${project}/graphql`;
 
-  const token = await ego.getToken();
+  const token = await keycloak.getToken();
   const Authorization: string = `Bearer ${token}`;
   const config = { headers: { Authorization } };
 
