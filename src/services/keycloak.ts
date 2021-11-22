@@ -2,7 +2,7 @@ import axios, { AxiosBasicCredentials } from 'axios';
 import * as jwt from 'jsonwebtoken';
 import * as qs from 'query-string';
 
-import { keycloakClientId, keycloakClientSecret } from '../config';
+import { keycloakApi, keycloakClientId, keycloakClientSecret, keycloakRealm } from '../config';
 
 let appToken: string;
 let expiry: number;
@@ -19,7 +19,7 @@ const fetchToken = async (): Promise<string> => {
   });
   const config = {
     method: 'post',
-    url: 'https://kf-keycloak-qa.kf-strides.org/auth/realms/kidsfirstdrc/protocol/openid-connect/token',
+    url: `${keycloakApi}/realms/${keycloakRealm}/protocol/openid-connect/token`,
     headers: { 
       'Content-Type': 'application/x-www-form-urlencoded'
     },
